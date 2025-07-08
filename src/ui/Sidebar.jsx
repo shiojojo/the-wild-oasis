@@ -1,4 +1,6 @@
 import styled from 'styled-components';
+import Logo from './Logo';
+import MainNav from './MainNav';
 
 const StyledSidebar = styled.aside`
   grid-row: 1 / -1;
@@ -10,7 +12,12 @@ const StyledSidebar = styled.aside`
 `;
 
 function Sidebar() {
-  return <StyledSidebar>test</StyledSidebar>;
+  return (
+    <StyledSidebar>
+      <Logo />
+      <MainNav />
+    </StyledSidebar>
+  );
 }
 
 export default Sidebar;
