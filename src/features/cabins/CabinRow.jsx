@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import { formatCurrency } from '../../utils/helpers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteCabin } from '../../services/apiCabins';
+import { toast } from 'react-hot-toast';
 
 const TableRow = styled.div`
   display: grid;
@@ -43,15 +44,14 @@ const Discount = styled.div`
 function CabinRow({ cabin }) {
   const { image, name, maxCapacity, regularPrice, discount, id } = cabin;
   const queryClient = useQueryClient();
-  const [errorMsg, setErrorMsg] = useState('');
   const { mutate } = useMutation({
     mutationFn: deleteCabin,
     onSuccess: () => {
       queryClient.invalidateQueries(['cabins']);
-      setErrorMsg('');
+      toast.success('Cabin deleted successfully');
     },
     onError: error => {
-      setErrorMsg(error.message || '削除に失敗しました');
+      toast.error(error.message || 'Failed to delete cabin');
     },
   });
 
@@ -75,9 +75,6 @@ function CabinRow({ cabin }) {
         >
           Delete
         </button>
-        {errorMsg && (
-          <div style={{ color: 'red', fontSize: '0.9em' }}>{errorMsg}</div>
-        )}
       </div>
     </TableRow>
   );
