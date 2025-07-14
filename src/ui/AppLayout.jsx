@@ -16,6 +16,9 @@ const StyledMain = styled.main`
   background: var(--color-grey-100);
   overflow-y: auto;
   padding: 3.2rem 4.8rem 6.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.4rem;
 `;
 
 function AppLayout() {
