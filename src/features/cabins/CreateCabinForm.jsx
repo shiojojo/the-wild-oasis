@@ -1,4 +1,3 @@
-import styled from 'styled-components';
 import { useForm } from 'react-hook-form';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
@@ -9,45 +8,16 @@ import Button from '../../ui/Button';
 import FileInput from '../../ui/FileInput';
 import Textarea from '../../ui/Textarea';
 import { createCabin } from '../../services/apiCabins';
-
-const FormRow = styled.div`
-  display: grid;
-  align-items: center;
-  grid-template-columns: 24rem 1fr 1.2fr;
-  gap: 2.4rem;
-
-  padding: 1.2rem 0;
-
-  &:first-child {
-    padding-top: 0;
-  }
-
-  &:last-child {
-    padding-bottom: 0;
-  }
-
-  &:not(:last-child) {
-    border-bottom: 1px solid var(--color-grey-100);
-  }
-
-  &:has(button) {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1.2rem;
-  }
-`;
-
-const Label = styled.label`
-  font-weight: 500;
-`;
-
-const Error = styled.span`
-  font-size: 1.4rem;
-  color: var(--color-red-700);
-`;
+import FormRow from '../../ui/FormRow';
 
 function CreateCabinForm() {
-  const { register, handleSubmit, reset } = useForm();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+    getValues,
+  } = useForm();
   const queryClient = useQueryClient();
   const { mutate, isLoading } = useMutation({
     mutationFn: createCabin,
@@ -67,57 +37,75 @@ function CreateCabinForm() {
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      <FormRow>
-        <Label htmlFor="name">Cabin name</Label>
+      <FormRow label="Cabin name" error={errors.name?.message}>
         <Input
           type="text"
           id="name"
-          {...register('name', { required: true })}
+          disabled={isLoading}
+          {...register('name', { required: 'This field is required' })}
         />
       </FormRow>
 
-      <FormRow>
-        <Label htmlFor="maxCapacity">Maximum capacity</Label>
+      <FormRow label="Maximum capacity" error={errors.maxCapacity?.message}>
         <Input
           type="number"
           id="maxCapacity"
+          min={1}
+          disabled={isLoading}
           {...register('maxCapacity', {
-            required: true,
+            required: 'This field is required',
+            min: { value: 1, message: 'Minimum is 1' },
             valueAsNumber: true,
           })}
         />
       </FormRow>
 
-      <FormRow>
-        <Label htmlFor="regularPrice">Regular price</Label>
+      <FormRow label="Regular price" error={errors.regularPrice?.message}>
         <Input
           type="number"
           id="regularPrice"
+          min={1}
+          disabled={isLoading}
           {...register('regularPrice', {
-            required: true,
+            required: 'This field is required',
+            min: { value: 1, message: 'Minimum is 1' },
             valueAsNumber: true,
           })}
         />
       </FormRow>
 
-      <FormRow>
-        <Label htmlFor="discount">Discount</Label>
+      <FormRow label="Discount" error={errors.discount?.message}>
         <Input
           type="number"
           id="discount"
           defaultValue={0}
-          {...register('discount', { valueAsNumber: true })}
+          min={0}
+          disabled={isLoading}
+          {...register('discount', {
+            valueAsNumber: true,
+            min: { value: 0, message: 'Minimum is 0' },
+            validate: value =>
+              value <= (Number(getValues('regularPrice')) || 0) ||
+              'Discount cannot exceed price',
+          })}
         />
       </FormRow>
 
-      <FormRow>
-        <Label htmlFor="description">Description for website</Label>
-        <Textarea id="description" {...register('description')} />
+      <FormRow label="Description for website">
+        <Textarea
+          id="description"
+          disabled={isLoading}
+          {...register('description')}
+        />
       </FormRow>
 
-      <FormRow>
-        <Label htmlFor="image">Cabin photo</Label>
-        <FileInput id="image" accept="image/*" {...register('image')} />
+      <FormRow label="Cabin photo">
+        <FileInput
+          id="image"
+          accept="image/*"
+          disabled={isLoading}
+          {...register('image')}
+        />
       </FormRow>
 
       <FormRow>
