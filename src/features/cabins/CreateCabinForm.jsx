@@ -32,7 +32,9 @@ function CreateCabinForm() {
   });
 
   function onSubmit(data) {
-    mutate(data);
+    const newData = { ...data, image: data.image?.[0] };
+    console.log('Form submitted:', newData);
+    mutate(newData);
   }
 
   return (
