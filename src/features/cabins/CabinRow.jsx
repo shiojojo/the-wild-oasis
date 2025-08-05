@@ -66,6 +66,21 @@ function CabinRow({ cabin }) {
         <button
           type="button"
           style={{
+            color: 'blue',
+            background: 'none',
+            border: 'none',
+            cursor: 'pointer',
+            marginRight: '1rem',
+          }}
+          onClick={() => {
+            /* TODO: Edit handler */
+          }}
+        >
+          Edit
+        </button>
+        <button
+          type="button"
+          style={{
             color: 'red',
             background: 'none',
             border: 'none',
