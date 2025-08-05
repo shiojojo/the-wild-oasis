@@ -126,7 +126,9 @@ function CreateCabinForm({ cabin }) {
           id="image"
           accept="image/*"
           disabled={isCreating}
-          {...register('image')}
+          {...register('image', {
+            required: !isEdit ? 'Image is required' : false,
+          })}
         />
       </FormRow>
 
