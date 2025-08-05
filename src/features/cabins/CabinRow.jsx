@@ -1,9 +1,10 @@
-import React from 'react';
+import { useState } from 'react';
 import styled from 'styled-components';
 import { formatCurrency } from '../../utils/helpers';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { deleteCabin } from '../../services/apiCabins';
 import { toast } from 'react-hot-toast';
+import CreateCabinForm from './CreateCabinForm';
 
 const TableRow = styled.div`
   display: grid;
@@ -54,44 +55,46 @@ function CabinRow({ cabin }) {
       toast.error(error.message || 'Failed to delete cabin');
     },
   });
+  const [showEditForm, setShowEditForm] = useState(false);
 
   return (
-    <TableRow role="row">
-      <Img src={image} alt={name} />
-      <Cabin>{name}</Cabin>
-      <div>{maxCapacity} guests</div>
-      <Price>{formatCurrency(regularPrice)}</Price>
-      <Discount>{discount ? `-${formatCurrency(discount)}` : ''}</Discount>
-      <div>
-        <button
-          type="button"
-          style={{
-            color: 'blue',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-            marginRight: '1rem',
-          }}
-          onClick={() => {
-            /* TODO: Edit handler */
-          }}
-        >
-          Edit
-        </button>
-        <button
-          type="button"
-          style={{
-            color: 'red',
-            background: 'none',
-            border: 'none',
-            cursor: 'pointer',
-          }}
-          onClick={() => mutate(id)}
-        >
-          Delete
-        </button>
-      </div>
-    </TableRow>
+    <>
+      <TableRow role="row">
+        <Img src={image} alt={name} />
+        <Cabin>{name}</Cabin>
+        <div>{maxCapacity} guests</div>
+        <Price>{formatCurrency(regularPrice)}</Price>
+        <Discount>{discount ? `-${formatCurrency(discount)}` : ''}</Discount>
+        <div>
+          <button
+            type="button"
+            style={{
+              color: 'blue',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+              marginRight: '1rem',
+            }}
+            onClick={() => setShowEditForm(show => !show)}
+          >
+            Edit
+          </button>
+          <button
+            type="button"
+            style={{
+              color: 'red',
+              background: 'none',
+              border: 'none',
+              cursor: 'pointer',
+            }}
+            onClick={() => mutate(id)}
+          >
+            Delete
+          </button>
+        </div>
+      </TableRow>
+      {showEditForm && <CreateCabinForm />}
+    </>
   );
 }
 
