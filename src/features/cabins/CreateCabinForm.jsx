@@ -10,16 +10,29 @@ import Textarea from '../../ui/Textarea';
 import { createCabin } from '../../services/apiCabins';
 import FormRow from '../../ui/FormRow';
 
-function CreateCabinForm() {
+function CreateCabinForm({ cabin }) {
+  const isEdit = Boolean(cabin);
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
     getValues,
-  } = useForm();
+  } = useForm({
+    defaultValues: isEdit
+      ? {
+          name: cabin.name || '',
+          maxCapacity: cabin.maxCapacity || 1,
+          regularPrice: cabin.regularPrice || 1,
+          discount: cabin.discount || 0,
+          description: cabin.description || '',
+          image: undefined, // 画像は新規アップロード時のみ
+        }
+      : {},
+  });
   const queryClient = useQueryClient();
-  const { mutate, isLoading } = useMutation({
+  const { mutate: createMutate, isLoading: isCreating } = useMutation({
     mutationFn: createCabin,
     onSuccess: () => {
       queryClient.invalidateQueries(['cabins']);
@@ -30,11 +43,18 @@ function CreateCabinForm() {
       toast.error(error.message || 'Failed to create cabin');
     },
   });
+  // 編集用のmutationはここで用意（例: updateCabin）
+  // const { mutate: updateMutate, isLoading: isUpdating } = useMutation(...)
 
   function onSubmit(data) {
     const newData = { ...data, image: data.image?.[0] };
-    console.log('Form submitted:', newData);
-    mutate(newData);
+    if (isEdit) {
+      // updateCabin APIを呼ぶ（未実装の場合はコメントアウト）
+      // updateMutate({ id: cabin.id, ...newData });
+      toast('Edit is not implemented yet');
+    } else {
+      createMutate(newData);
+    }
   }
 
   return (
@@ -43,7 +63,7 @@ function CreateCabinForm() {
         <Input
           type="text"
           id="name"
-          disabled={isLoading}
+          disabled={isCreating}
           {...register('name', { required: 'This field is required' })}
         />
       </FormRow>
@@ -53,7 +73,7 @@ function CreateCabinForm() {
           type="number"
           id="maxCapacity"
           min={1}
-          disabled={isLoading}
+          disabled={isCreating}
           {...register('maxCapacity', {
             required: 'This field is required',
             min: { value: 1, message: 'Minimum is 1' },
@@ -67,7 +87,7 @@ function CreateCabinForm() {
           type="number"
           id="regularPrice"
           min={1}
-          disabled={isLoading}
+          disabled={isCreating}
           {...register('regularPrice', {
             required: 'This field is required',
             min: { value: 1, message: 'Minimum is 1' },
@@ -82,7 +102,7 @@ function CreateCabinForm() {
           id="discount"
           defaultValue={0}
           min={0}
-          disabled={isLoading}
+          disabled={isCreating}
           {...register('discount', {
             valueAsNumber: true,
             min: { value: 0, message: 'Minimum is 0' },
@@ -96,7 +116,7 @@ function CreateCabinForm() {
       <FormRow label="Description for website">
         <Textarea
           id="description"
-          disabled={isLoading}
+          disabled={isCreating}
           {...register('description')}
         />
       </FormRow>
@@ -105,17 +125,21 @@ function CreateCabinForm() {
         <FileInput
           id="image"
           accept="image/*"
-          disabled={isLoading}
+          disabled={isCreating}
           {...register('image')}
         />
       </FormRow>
 
       <FormRow>
-        <Button variation="secondary" type="reset" disabled={isLoading}>
+        <Button
+          variation="secondary"
+          type="reset"
+          disabled={isCreating /* || isUpdating */}
+        >
           Cancel
         </Button>
-        <Button type="submit" disabled={isLoading}>
-          Add cabin
+        <Button type="submit" disabled={isCreating /* || isUpdating */}>
+          {isEdit ? 'Edit cabin' : 'Add cabin'}
         </Button>
       </FormRow>
     </Form>
