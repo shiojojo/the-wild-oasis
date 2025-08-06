@@ -45,7 +45,7 @@ function CreateCabinForm({ cabin }) {
   });
   // 編集用のmutationはここで用意（例: updateCabin）
   const { mutate: updateMutate, isLoading: isUpdating } = useMutation({
-    mutationFn: ({ id, ...data }) => updateCabin(id, data),
+    mutationFn: ({ id, data }) => updateCabin(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries(['cabins']);
       toast.success('Cabin updated successfully');
@@ -60,7 +60,7 @@ function CreateCabinForm({ cabin }) {
     const newData = { ...data, image: data.image?.[0] };
     if (isEdit) {
       // updateCabin APIを呼ぶ
-      updateMutate({ id: cabin.id, ...newData });
+      updateMutate({ id: cabin.id, data: newData });
     } else {
       createMutate(newData);
     }
