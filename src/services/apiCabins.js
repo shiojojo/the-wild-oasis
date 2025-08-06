@@ -21,30 +21,33 @@ export async function deleteCabin(id) {
   }
 }
 
-export async function createCabin(newCabin) {
-  let cabinData = { ...newCabin };
-
-  // If image is required, throw error if not a File
-  if (!(newCabin.image instanceof File)) {
-    throw new Error('Please select an image file');
-  }
-
-  // 画像ファイルがFile型ならSupabase Storage SDKでアップロード
+async function uploadCabinImage(image) {
+  if (!(image instanceof File)) return null;
   const uniquePrefix = crypto.randomUUID();
-  const originalName = newCabin.image.name;
+  const originalName = image.name;
   const uniqueFileName = `${uniquePrefix}-${originalName}`;
 
   const { error: uploadError } = await supabase.storage
     .from('cabin-images')
-    .upload(uniqueFileName, newCabin.image, {
+    .upload(uniqueFileName, image, {
       cacheControl: '3600',
       upsert: true,
-      contentType: newCabin.image.type,
+      contentType: image.type,
     });
 
   if (uploadError) throw new Error('File upload failed');
-  // 公開URLを組み立てて格納
-  cabinData.image = `${UPLOAD_URL}${uniqueFileName}`;
+  return `${UPLOAD_URL}${uniqueFileName}`;
+}
+
+export async function createCabin(newCabin) {
+  let cabinData = { ...newCabin };
+
+  // 画像必須チェック
+  if (!(newCabin.image instanceof File)) {
+    throw new Error('Please select an image file');
+  }
+  // 画像アップロード
+  cabinData.image = await uploadCabinImage(newCabin.image);
 
   const { data, error } = await supabase
     .from('cabins')
@@ -61,25 +64,11 @@ export async function createCabin(newCabin) {
 export async function updateCabin(id, updatedCabin) {
   let cabinData = { ...updatedCabin };
 
-  // If image is a File, upload it and update the image URL
+  // 画像がFile型ならアップロードしてURLを更新
   if (updatedCabin.image instanceof File) {
-    const uniquePrefix = crypto.randomUUID();
-    const originalName = updatedCabin.image.name;
-    const uniqueFileName = `${uniquePrefix}-${originalName}`;
-
-    const { error: uploadError } = await supabase.storage
-      .from('cabin-images')
-      .upload(uniqueFileName, updatedCabin.image, {
-        cacheControl: '3600',
-        upsert: true,
-        contentType: updatedCabin.image.type,
-      });
-
-    if (uploadError) throw new Error('File upload failed');
-    // Set the new image URL
-    cabinData.image = `${UPLOAD_URL}${uniqueFileName}`;
+    cabinData.image = await uploadCabinImage(updatedCabin.image);
   }
-  // If image is not a File, keep the existing image URL (do nothing)
+  // 画像がFileでなければ既存URLをそのまま使う
 
   const { data, error } = await supabase
     .from('cabins')
