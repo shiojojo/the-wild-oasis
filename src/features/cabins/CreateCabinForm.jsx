@@ -7,7 +7,7 @@ import Form from '../../ui/Form';
 import Button from '../../ui/Button';
 import FileInput from '../../ui/FileInput';
 import Textarea from '../../ui/Textarea';
-import { createCabin } from '../../services/apiCabins';
+import { createCabin, updateCabin } from '../../services/apiCabins';
 import FormRow from '../../ui/FormRow';
 
 function CreateCabinForm({ cabin }) {
@@ -44,14 +44,23 @@ function CreateCabinForm({ cabin }) {
     },
   });
   // 編集用のmutationはここで用意（例: updateCabin）
-  // const { mutate: updateMutate, isLoading: isUpdating } = useMutation(...)
+  const { mutate: updateMutate, isLoading: isUpdating } = useMutation({
+    mutationFn: ({ id, ...data }) => updateCabin(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['cabins']);
+      toast.success('Cabin updated successfully');
+      reset();
+    },
+    onError: error => {
+      toast.error(error.message || 'Failed to update cabin');
+    },
+  });
 
   function onSubmit(data) {
     const newData = { ...data, image: data.image?.[0] };
     if (isEdit) {
-      // updateCabin APIを呼ぶ（未実装の場合はコメントアウト）
-      // updateMutate({ id: cabin.id, ...newData });
-      toast('Edit is not implemented yet');
+      // updateCabin APIを呼ぶ
+      updateMutate({ id: cabin.id, ...newData });
     } else {
       createMutate(newData);
     }
@@ -125,7 +134,7 @@ function CreateCabinForm({ cabin }) {
         <FileInput
           id="image"
           accept="image/*"
-          disabled={isCreating}
+          disabled={isCreating || isUpdating}
           {...register('image', {
             required: !isEdit ? 'Image is required' : false,
           })}
@@ -136,11 +145,11 @@ function CreateCabinForm({ cabin }) {
         <Button
           variation="secondary"
           type="reset"
-          disabled={isCreating /* || isUpdating */}
+          disabled={isCreating || isUpdating}
         >
           Cancel
         </Button>
-        <Button type="submit" disabled={isCreating /* || isUpdating */}>
+        <Button type="submit" disabled={isCreating || isUpdating}>
           {isEdit ? 'Edit cabin' : 'Add cabin'}
         </Button>
       </FormRow>

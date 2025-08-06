@@ -57,3 +57,39 @@ export async function createCabin(newCabin) {
   }
   return data;
 }
+
+export async function updateCabin(id, updatedCabin) {
+  let cabinData = { ...updatedCabin };
+
+  // If image is a File, upload it and update the image URL
+  if (updatedCabin.image instanceof File) {
+    const uniquePrefix = crypto.randomUUID();
+    const originalName = updatedCabin.image.name;
+    const uniqueFileName = `${uniquePrefix}-${originalName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from('cabin-images')
+      .upload(uniqueFileName, updatedCabin.image, {
+        cacheControl: '3600',
+        upsert: true,
+        contentType: updatedCabin.image.type,
+      });
+
+    if (uploadError) throw new Error('File upload failed');
+    // Set the new image URL
+    cabinData.image = `${UPLOAD_URL}${uniqueFileName}`;
+  }
+  // If image is not a File, keep the existing image URL (do nothing)
+
+  const { data, error } = await supabase
+    .from('cabins')
+    .update(cabinData)
+    .eq('id', id)
+    .select()
+    .single();
+  if (error) {
+    console.error(error);
+    throw new Error('Cabin could not be updated');
+  }
+  return data;
+}
