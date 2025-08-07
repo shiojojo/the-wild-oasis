@@ -10,7 +10,7 @@ import Textarea from '../../ui/Textarea';
 // ...existing code...
 import FormRow from '../../ui/FormRow';
 
-function CreateCabinForm({ cabin }) {
+function CreateCabinForm({ cabin, onClose }) {
   const isEdit = Boolean(cabin);
   const {
     register,
@@ -31,10 +31,16 @@ function CreateCabinForm({ cabin }) {
       : {},
   });
   const { mutate: createMutate, isLoading: isCreating } = useCreateCabin({
-    onSuccess: reset,
+    onSuccess: () => {
+      reset();
+      if (onClose) onClose();
+    },
   });
   const { mutate: updateMutate, isLoading: isUpdating } = useUpdateCabin({
-    onSuccess: reset,
+    onSuccess: () => {
+      reset();
+      if (onClose) onClose();
+    },
   });
 
   function onSubmit(data) {
@@ -127,6 +133,7 @@ function CreateCabinForm({ cabin }) {
           variation="secondary"
           type="reset"
           disabled={isCreating || isUpdating}
+          onClick={onClose}
         >
           Cancel
         </Button>
