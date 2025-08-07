@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { formatCurrency } from '../../utils/helpers';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { deleteCabin } from '../../services/apiCabins';
-import { toast } from 'react-hot-toast';
+import { useDeleteCabin } from './hooks/useDeleteCabin';
 import CreateCabinForm from './CreateCabinForm';
 
 const TableRow = styled.div`
@@ -44,17 +42,7 @@ const Discount = styled.div`
 
 function CabinRow({ cabin }) {
   const { image, name, maxCapacity, regularPrice, discount, id } = cabin;
-  const queryClient = useQueryClient();
-  const { mutate } = useMutation({
-    mutationFn: deleteCabin,
-    onSuccess: () => {
-      queryClient.invalidateQueries(['cabins']);
-      toast.success('Cabin deleted successfully');
-    },
-    onError: error => {
-      toast.error(error.message || 'Failed to delete cabin');
-    },
-  });
+  const { mutate } = useDeleteCabin();
   const [showEditForm, setShowEditForm] = useState(false);
 
   return (
