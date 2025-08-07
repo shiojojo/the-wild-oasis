@@ -42,7 +42,7 @@ const Discount = styled.div`
 
 function CabinRow({ cabin }) {
   const { image, name, maxCapacity, regularPrice, discount, id } = cabin;
-  const { mutate } = useDeleteCabin();
+  const { mutate, isLoading } = useDeleteCabin();
   const [showEditForm, setShowEditForm] = useState(false);
 
   return (
@@ -60,10 +60,11 @@ function CabinRow({ cabin }) {
               color: 'blue',
               background: 'none',
               border: 'none',
-              cursor: 'pointer',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
               marginRight: '1rem',
             }}
             onClick={() => setShowEditForm(show => !show)}
+            disabled={isLoading}
           >
             Edit
           </button>
@@ -73,16 +74,21 @@ function CabinRow({ cabin }) {
               color: 'red',
               background: 'none',
               border: 'none',
-              cursor: 'pointer',
+              cursor: isLoading ? 'not-allowed' : 'pointer',
             }}
             onClick={() => mutate(id)}
+            disabled={isLoading}
           >
             Delete
           </button>
         </div>
       </TableRow>
       {showEditForm && (
-        <CreateCabinForm cabin={cabin} onClose={() => setShowEditForm(false)} />
+        <CreateCabinForm
+          cabin={cabin}
+          onClose={() => setShowEditForm(false)}
+          // CreateCabinForm側でisCreating/isUpdatingでボタン無効化済み
+        />
       )}
     </>
   );
