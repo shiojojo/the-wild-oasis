@@ -1,13 +1,13 @@
 import { useForm } from 'react-hook-form';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { toast } from 'react-hot-toast';
+import { useCreateCabin } from './hooks/useCreateCabin';
+import { useUpdateCabin } from './hooks/useUpdateCabin';
 
 import Input from '../../ui/Input';
 import Form from '../../ui/Form';
 import Button from '../../ui/Button';
 import FileInput from '../../ui/FileInput';
 import Textarea from '../../ui/Textarea';
-import { createCabin, updateCabin } from '../../services/apiCabins';
+// ...existing code...
 import FormRow from '../../ui/FormRow';
 
 function CreateCabinForm({ cabin }) {
@@ -16,7 +16,6 @@ function CreateCabinForm({ cabin }) {
     register,
     handleSubmit,
     reset,
-    setValue,
     formState: { errors },
     getValues,
   } = useForm({
@@ -31,29 +30,11 @@ function CreateCabinForm({ cabin }) {
         }
       : {},
   });
-  const queryClient = useQueryClient();
-  const { mutate: createMutate, isLoading: isCreating } = useMutation({
-    mutationFn: createCabin,
-    onSuccess: () => {
-      queryClient.invalidateQueries(['cabins']);
-      toast.success('Cabin created successfully');
-      reset();
-    },
-    onError: error => {
-      toast.error(error.message || 'Failed to create cabin');
-    },
+  const { mutate: createMutate, isLoading: isCreating } = useCreateCabin({
+    onSuccess: reset,
   });
-  // 編集用のmutationはここで用意（例: updateCabin）
-  const { mutate: updateMutate, isLoading: isUpdating } = useMutation({
-    mutationFn: ({ id, data }) => updateCabin(id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['cabins']);
-      toast.success('Cabin updated successfully');
-      reset();
-    },
-    onError: error => {
-      toast.error(error.message || 'Failed to update cabin');
-    },
+  const { mutate: updateMutate, isLoading: isUpdating } = useUpdateCabin({
+    onSuccess: reset,
   });
 
   function onSubmit(data) {
