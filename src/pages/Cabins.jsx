@@ -1,6 +1,4 @@
 import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-import { getCabins } from '../services/apiCabins';
 import Heading from '../ui/Heading';
 import CabinTable from '../features/cabins/CabinTable';
 import Spinner from '../ui/Spinner';
@@ -10,14 +8,6 @@ import Button from '../ui/Button';
 
 function Cabins() {
   const [showForm, setShowForm] = useState(false);
-  const {
-    data: cabins = [],
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ['cabins'],
-    queryFn: getCabins,
-  });
 
   return (
     <>
@@ -26,9 +16,7 @@ function Cabins() {
         <p>Filter / Sort</p>
       </Row>
       <Row>
-        {isLoading && <Spinner />}
-        {error && <p style={{ color: 'red' }}>{error.message}</p>}
-        {!isLoading && !error && <CabinTable cabins={cabins} />}
+        <CabinTable />
       </Row>
       <Row>
         <Button onClick={() => setShowForm(show => !show)}>

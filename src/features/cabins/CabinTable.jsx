@@ -1,5 +1,7 @@
 import styled from 'styled-components';
 import CabinRow from './CabinRow';
+import Spinner from '../../ui/Spinner';
+import { useCabins } from './hooks/useCabins';
 
 const Table = styled.div`
   border: 1px solid var(--color-grey-200);
@@ -25,7 +27,10 @@ const TableHeader = styled.header`
   padding: 1.6rem 2.4rem;
 `;
 
-function CabinTable({ cabins }) {
+function CabinTable() {
+  const { data: cabins = [], isLoading, error } = useCabins();
+  if (isLoading) return <Spinner />;
+  if (error) return <p style={{ color: 'red' }}>{error.message}</p>;
   return (
     <Table role="table">
       <TableHeader role="row">
@@ -42,5 +47,4 @@ function CabinTable({ cabins }) {
     </Table>
   );
 }
-
 export default CabinTable;
