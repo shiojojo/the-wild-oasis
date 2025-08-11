@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useCreateCabin } from './hooks/useCreateCabin';
 import styled from 'styled-components';
 import { formatCurrency } from '../../utils/helpers';
 import { useDeleteCabin } from './hooks/useDeleteCabin';
@@ -41,9 +42,25 @@ const Discount = styled.div`
 `;
 
 function CabinRow({ cabin }) {
-  const { image, name, maxCapacity, regularPrice, discount, id } = cabin;
+  const { image, name, maxCapacity, regularPrice, discount, id, description } =
+    cabin;
   const { mutate, isLoading } = useDeleteCabin();
   const [showEditForm, setShowEditForm] = useState(false);
+  const { mutate: createMutate, isLoading: isCreating } = useCreateCabin();
+
+  // 複製ボタンの処理
+  const handleDuplicate = () => {
+    // 画像がFile型でない場合はURLで複製（APIが許せば）
+    // nameに「(複製)」を付与
+    createMutate({
+      name: name + 'copy',
+      maxCapacity,
+      regularPrice,
+      discount,
+      description: description || '',
+      image, // 画像はURLのまま渡す（APIが許せば）
+    });
+  };
 
   return (
     <>
@@ -54,6 +71,20 @@ function CabinRow({ cabin }) {
         <Price>{formatCurrency(regularPrice)}</Price>
         <Discount>{discount ? `-${formatCurrency(discount)}` : ''}</Discount>
         <div>
+          <button
+            type="button"
+            style={{
+              color: 'green',
+              background: 'none',
+              border: 'none',
+              cursor: isLoading || isCreating ? 'not-allowed' : 'pointer',
+              marginRight: '1rem',
+            }}
+            onClick={handleDuplicate}
+            disabled={isLoading || isCreating}
+          >
+            複製
+          </button>
           <button
             type="button"
             style={{

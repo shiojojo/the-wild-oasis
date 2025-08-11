@@ -43,11 +43,21 @@ export async function createCabin(newCabin) {
   let cabinData = { ...newCabin };
 
   // 画像必須チェック
-  if (!(newCabin.image instanceof File)) {
+  if (
+    !(
+      newCabin.image instanceof File ||
+      (typeof newCabin.image === 'string' && newCabin.image.startsWith('http'))
+    )
+  ) {
     throw new Error('Please select an image file');
   }
-  // 画像アップロード
-  cabinData.image = await uploadCabinImage(newCabin.image);
+  // 画像アップロード or 既存URLをそのまま利用
+  if (newCabin.image instanceof File) {
+    cabinData.image = await uploadCabinImage(newCabin.image);
+  } else {
+    // 既存の画像URLをそのまま使う
+    cabinData.image = newCabin.image;
+  }
 
   const { data, error } = await supabase
     .from('cabins')
