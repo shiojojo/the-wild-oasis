@@ -2,11 +2,12 @@ import { useSettings } from './hooks/useSettings';
 import Form from '../../ui/Form';
 import FormRow from '../../ui/FormRow';
 import Input from '../../ui/Input';
+import Spinner from '../../ui/Spinner';
 
 function UpdateSettingsForm() {
   const { data: settings, isLoading, error } = useSettings();
 
-  if (isLoading) return <div>Loading...</div>;
+  if (isLoading) return <Spinner />;
   if (error || !settings) return <div>設定の取得に失敗しました</div>;
 
   return (
