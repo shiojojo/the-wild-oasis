@@ -1,18 +1,10 @@
-import { useQuery } from '@tanstack/react-query';
-import { getSettings } from '../../services/apiSettings';
+import { useSettings } from './hooks/useSettings';
 import Form from '../../ui/Form';
 import FormRow from '../../ui/FormRow';
 import Input from '../../ui/Input';
 
 function UpdateSettingsForm() {
-  const {
-    data: settings,
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: ['settings'],
-    queryFn: getSettings,
-  });
+  const { data: settings, isLoading, error } = useSettings();
 
   if (isLoading) return <div>Loading...</div>;
   if (error || !settings) return <div>設定の取得に失敗しました</div>;
