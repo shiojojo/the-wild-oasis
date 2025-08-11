@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { HiTrash, HiPencil, HiSquare2Stack } from 'react-icons/hi2';
 import { useCreateCabin } from './hooks/useCreateCabin';
 import styled from 'styled-components';
 import { formatCurrency } from '../../utils/helpers';
@@ -79,11 +80,17 @@ function CabinRow({ cabin }) {
               border: 'none',
               cursor: isLoading || isCreating ? 'not-allowed' : 'pointer',
               marginRight: '1rem',
+              fontSize: '1.8rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 0,
             }}
             onClick={handleDuplicate}
             disabled={isLoading || isCreating}
+            aria-label="Duplicate"
           >
-            複製
+            <HiSquare2Stack />
           </button>
           <button
             type="button"
@@ -93,11 +100,17 @@ function CabinRow({ cabin }) {
               border: 'none',
               cursor: isLoading ? 'not-allowed' : 'pointer',
               marginRight: '1rem',
+              fontSize: '1.8rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 0,
             }}
             onClick={() => setShowEditForm(show => !show)}
             disabled={isLoading}
+            aria-label="Edit"
           >
-            Edit
+            <HiPencil />
           </button>
           <button
             type="button"
@@ -106,11 +119,17 @@ function CabinRow({ cabin }) {
               background: 'none',
               border: 'none',
               cursor: isLoading ? 'not-allowed' : 'pointer',
+              fontSize: '1.8rem',
+              display: 'inline-flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: 0,
             }}
             onClick={() => mutate(id)}
             disabled={isLoading}
+            aria-label="Delete"
           >
-            Delete
+            <HiTrash />
           </button>
         </div>
       </TableRow>
